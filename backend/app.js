@@ -8,7 +8,17 @@ var usersRouter = require('./routes/users');
 const ordersRouter = require('./routes/orders');
 const productsRouter = require('./routes/products');
 
+const MongoClient = require('mongodb').MongoClient;
+
 var app = express();
+
+MongoClient.connect('mongodb://localhost:27017') // Dubbelkolla porten!!!
+.then(client => {
+    console.log("Ansluten till databasen");
+    const db = client.db("gabriel-yagoub");
+    app.locals.db = db;
+})
+.catch(err => console.log("Ingen kontakt med databasen", err));
 
 app.use(logger('dev'));
 app.use(express.json());

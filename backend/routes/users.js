@@ -1,37 +1,64 @@
 var express = require('express');
+const { ObjectId } = require('mongodb');
 var router = express.Router();
 
-
-let users = [
-  {id: "1", name: 'Kalle', password: '123', email: 'test1@testmail.com'},
-  {id: "2", name: 'Pelle', password: '456', email: 'test2@testmail.com'},
-  {id: "3", name: 'Nisse', password: '789', email: 'test3@testmail.com'}
-];
-
 // HÄMTA ALLA USERS // SKICKA INTE MED LÖSENORD // BARA ID, NAMN + EMAIL PÅ ALLA USERS
-router.get('/', async function(req, res, next) {
-  const userListWithoutPasswords = users.map(user => ({
-    id: user.id,
-    name: user.name,
-    email: user.email
-  }));
-  res.json(userListWithoutPasswords);
+router.get('/', function(req, res, next) {
+  req.app.locals.db.collection('users')
+  .find({}, {projection: {password: 0}}).toArray()
+  .then(result => {
+    res.json(result)
+  })
+  .catch(error => console.error(error, "Ett fel uppstod när alla användare skulle hämtas"))
 });
+
+
+// // HÄMTA SPECIFIK USER // SKICKA HELA OBJEKTET
+// // router.post('/', function(req, res, next) {
+// //   const specificId = req.body.id;
+// //   const user = users.find(user => user.id == specificId);
+// //   res.json(user);
+// // });
+
+// router.post('/', function(req, res, next) {
+//   const specificId = req.body.id;
+//   const foundUserId = users.find(user => user.id == specificId);
+//   if (foundUserId) {
+//     res.json(foundUserId);
+//   }
+//   else {
+//     res.send("Ingen användare med detta id hittades");
+//   };
+// });
 
 // HÄMTA SPECIFIK USER // SKICKA HELA OBJEKTET
 router.post('/', function(req, res, next) {
-  const id = req.body.id;
-  const user = users.find(user => user.id == id);
-  res.json(user);
+  req.app.locals.db.collection('users').findOne({"_id" : new ObjectId(req.body.id)})
+  .then(result => {
+    res.json(result)
+  });
 });
 
-// SKAPA USER
+// SKAPA USER 
 router.post('/add', function(req, res, next) {
   const newUser = req.body;
-  users.push(newUser);
-  res.json(newUser);
+  req.app.locals.db.collection('users').insertOne(newUser)
+  res.send("Användare tillagd");
 });
 
-
+// LOGGA IN USER
+router.post('/login', function(req, res, next) {
+  const email = req.body.email;
+  const password = req.body.password;
+  req.app.locals.db.collection('users').findOne({"email": email, "password": password})
+  .then(result => {
+    if (result) {
+      res.send("Inloggad");
+    }
+    else {
+      res.send("Fel email eller lösenord");
+    }
+  })
+});
 
 module.exports = router;
