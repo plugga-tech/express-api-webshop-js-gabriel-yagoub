@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     const userEmail = await UserModel.findOne({ email });
     const userPassword = await UserModel.findOne({ password });
     if (userEmail && userPassword) {
-      res.json("Login successful");
+      res.json("Du är inloggad");
     } else {
       res.status(404).json("Fel användarnamn eller lösenord");
     }

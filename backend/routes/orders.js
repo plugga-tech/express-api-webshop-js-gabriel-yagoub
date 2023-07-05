@@ -6,10 +6,10 @@ const ProductModel = require('../models/product-model');
 // Skapa ny order för en specifik användare - OK!
 router.post('/add', async (req, res) => {
     const {products} = req.body;
-    for (const productItem of products) {
+    for (const productObject of products) {
         try {
-            const product = await ProductModel.findById(productItem.productId);
-            product.lager = product.lager - productItem.quantity;
+            const product = await ProductModel.findById(productObject.productId);
+            product.lager = product.lager - productObject.quantity;
             await product.save();
         } catch(error) {
             res.status(404).json("Felaktigt produkt-id");
