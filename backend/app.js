@@ -8,17 +8,33 @@ var usersRouter = require('./routes/users');
 const ordersRouter = require('./routes/orders');
 const productsRouter = require('./routes/products');
 
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
 
 var app = express();
 
-MongoClient.connect('mongodb://localhost:27017') // Dubbelkolla porten!!!
-.then(client => {
-    console.log("Ansluten till databasen");
-    const db = client.db("gabriel-yagoub");
-    app.locals.db = db;
-})
-.catch(err => console.log("Ingen kontakt med databasen", err));
+async function init() {
+    try {
+        await mongoose.connect('mongodb://localhost:27017/gabriel-yagoub', {useNewUrlParser: true, useUnifiedTopology: true});
+        console.log("Ansluten till databasen");
+    } catch (error) {
+        console.log("Kunde inte ansluta till databasen", error);
+    }
+}
+
+
+init();
+
+
+
+
+
+// MongoClient.connect('mongodb://localhost:27017') // Dubbelkolla porten!!!
+// .then(client => {
+//     console.log("Ansluten till databasen");
+//     const db = client.db("gabriel-yagoub");
+//     app.locals.db = db;
+// })
+// .catch(err => console.log("Ingen kontakt med databasen", err));
 
 app.use(logger('dev'));
 app.use(express.json());

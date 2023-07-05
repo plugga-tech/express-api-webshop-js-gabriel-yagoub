@@ -1,64 +1,52 @@
 var express = require('express');
-const { ObjectId } = require('mongodb');
+//const { ObjectId } = require('mongodb');
 var router = express.Router();
+const UserModel = require('../models/user-model'); 
 
-// HÄMTA ALLA USERS // SKICKA INTE MED LÖSENORD // BARA ID, NAMN + EMAIL PÅ ALLA USERS
-router.get('/', function(req, res, next) {
-  req.app.locals.db.collection('users')
-  .find({}, {projection: {password: 0}}).toArray()
-  .then(result => {
-    res.json(result)
-  })
-  .catch(error => console.error(error, "Ett fel uppstod när alla användare skulle hämtas"))
+// Hämta alla users, exkludera password i resultatet - OK!
+router.get('/', async (req, res) => {
+  const findAllUsers = await UserModel.find().select('-password');
+  res.json(findAllUsers);
 });
 
-
-// // HÄMTA SPECIFIK USER // SKICKA HELA OBJEKTET
-// // router.post('/', function(req, res, next) {
-// //   const specificId = req.body.id;
-// //   const user = users.find(user => user.id == specificId);
-// //   res.json(user);
-// // });
-
-// router.post('/', function(req, res, next) {
-//   const specificId = req.body.id;
-//   const foundUserId = users.find(user => user.id == specificId);
-//   if (foundUserId) {
-//     res.json(foundUserId);
-//   }
-//   else {
-//     res.send("Ingen användare med detta id hittades");
-//   };
-// });
-
-// HÄMTA SPECIFIK USER // SKICKA HELA OBJEKTET
-router.post('/', function(req, res, next) {
-  req.app.locals.db.collection('users').findOne({"_id" : new ObjectId(req.body.id)})
-  .then(result => {
-    res.json(result)
-  });
+// Hämta specifik user - OK!
+router.post('/', async (req, res) => {
+  try {
+    const specificUser = await UserModel.findById(req.body.id);
+    res.json(specificUser);
+  } catch (err) {
+  res.status(404).json("User not found");
+  }
 });
 
-// SKAPA USER 
-router.post('/add', function(req, res, next) {
-  const newUser = req.body;
-  req.app.locals.db.collection('users').insertOne(newUser)
-  res.send("Användare tillagd");
+// Skapa user - OK!
+router.post('/add', async (req, res) => {
+  const newUser = UserModel.create(req.body);
+  res.status(201).json(newUser);
 });
 
-// LOGGA IN USER
-router.post('/login', function(req, res, next) {
-  const email = req.body.email;
-  const password = req.body.password;
-  req.app.locals.db.collection('users').findOne({"email": email, "password": password})
-  .then(result => {
-    if (result) {
-      res.send("Inloggad");
+// Logga in user - OK!
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const userEmail = await UserModel.findOne({ email });
+    const userPassword = await UserModel.findOne({ password });
+    if (userEmail && userPassword) {
+      res.json("Login successful");
+    } else {
+      res.status(404).json("Fel användarnamn eller lösenord");
     }
-    else {
-      res.send("Fel email eller lösenord");
-    }
-  })
+  } catch (err) {
+    res.status(404).json("Login failed");
+  }
 });
+
+
+
+
+
+
+
+
 
 module.exports = router;

@@ -1,30 +1,31 @@
 var express = require('express');
-const { ObjectId } = require('mongodb');
 var router = express.Router();
+const ProductModel = require('../models/product-model');
 
-// HÄMTA ALLA PRODUKTER
-router.get('/', function(req, res, next) {
-  req.app.locals.db.collection('products').find().toArray()
-  .then(result => {
-    res.json(result)
-  })
-  .catch(error => console.error(error, "Ett fel uppstod när alla produkter skulle hämtas"))
+// Hämta alla produkter - OK!
+router.get('/', async (req, res) => {
+  const findAllProducts = await ProductModel.find();
+  res.json(findAllProducts);
 });
 
+// Hämta specifik produkt - OK!
+router.get('/:id', async (req, res) => {
+  try {
+    const specificProduct = await ProductModel.findById(req.params.id);
+    res.json(specificProduct);
+  } catch (err) {
+    res.status(404).json("Product not found");
+  }
+})
 
-// HÄMTA SPECIFIK PRODUKT
-router.get('/:id', function(req, res, next) {
-  req.app.locals.db.collection('products').findOne({"_id" : new ObjectId(req.params.id)})
-  .then(result => {
-    res.json(result)
-  });
-});
+// Skapa produkt - OK!
+router.post('/add', async (req, res) => {
+  const newProduct = ProductModel.create(req.body);
+  res.status(201).json(newProduct);
+})
 
-// SKAPA PRODUKT 
-router.post('/add', function(req, res, next) {
-  const newProduct = req.body;
-  req.app.locals.db.collection('products').insertOne(newProduct)
-  res.send("Produkt tillagd");
-});
+// Skapa order för en specifik user
+
+
 
 module.exports = router;

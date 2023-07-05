@@ -35,8 +35,8 @@ POST http://localhost:3000/api/users/login
 Content-Type: application/json
 
 {
-  "email": "test@mail.com",
-  "password": "test"
+  "email": "weller9@flickr.com",
+  "password": "mO6!C4O`_wb0a@8h"
 }
 
 ###
@@ -53,7 +53,7 @@ GET http://localhost:3000/api/products
 ###
 
 // HÄMTA SPECIFIK PRODUKT
-GET http://localhost:3000/api/products/64a16383bd486b90c53cc56d
+GET http://localhost:3000/api/products/64a16383bd486b90c53cc56e
 
 ###
 
@@ -79,15 +79,15 @@ POST http://localhost:3000/api/orders/add
 Content-Type: application/json
 
 {
-  "user": "{{getUsers.response.body.$[0].id}}",
+  "user": "64a15d10bd486b90c53cc561",
       "products": [
     {
-      "productId": "// ID PÅ EN PRODUKT",
+      "productId": "64a16383bd486b90c53cc56f",
       "quantity": 1
     },
     {
-      "productId": "// ID PÅ EN PRODUKT",
-      "quantity": 2
+      "productId": "64a16383bd486b90c53cc571",
+      "quantity": 1
     }
   ]
 }
